@@ -40,7 +40,7 @@
         <!-- Bouton -->
         <button
           @click="hasOptions ? showModal = true : confirmParticipation()"
-          class="w-full bg-green-500 hover:bg-green-600 active:scale-95 transition transform px-4 py-3 rounded-lg font-semibold shadow-md text-center"
+          class="w-full bg-orange-500 hover:bg-orange-600 active:scale-95 transition transform px-4 py-3 rounded-lg font-semibold shadow-md text-center"
         >
           {{ hasOptions ? 'Voir les options' : 'Confirmer ma participation' }}
         </button>
@@ -64,12 +64,27 @@
           <p class="font-semibold">{{ option.nom }}</p>
           <p class="text-sm text-gray-600">{{ option.description }} – {{ option.duree }}</p>
         </div>
-        <span class="text-green-600 font-bold">{{ formatPrix(option.prix) }}</span>
+       
+
+<div class="flex items-center justify-between">
+  <span class="text-amber-600 font-bold text-sm md:text-base">
+    {{ formatPrix(offre.prix + option.prix_supplementaire) }}
+  </span>
+
+ <span
+  v-if="option.prix_supplementaire === prixMinimum"
+  class="badge-transition text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full ml-2 font-medium shadow-sm"
+>
+  Meilleur prix
+</span>
+
+</div>
+
       </li>
     </ul>
     <button
       @click="showModal = false"
-      class="mt-4 w-full bg-gray-800 text-white py-2 rounded hover:bg-gray-700"
+      class="mt-4 w-full bg-red-800 text-white py-2 rounded hover:bg-red-700"
     >
       Fermer
     </button>
@@ -87,7 +102,7 @@ const props = defineProps({
     required: true
   }
 })
-console.log(props.offre.localisation)
+console.log(props.offre.prix)
 
 const showModal = ref(false)
 
@@ -95,8 +110,9 @@ const hasOptions = computed(() => Array.isArray(props.offre.options) && props.of
 
 const prixMinimum = computed(() => {
   if (!hasOptions.value) return props.offre.prix
-  return Math.min(...props.offre.options.map(opt => opt.prix))
+return Math.min(...props.offre.options.map(opt => props.offre.prix + opt.prix_supplementaire))
 })
+
 
 function formatPrix(prix) {
   if (typeof prix !== 'number') return '—'
@@ -108,3 +124,12 @@ function confirmParticipation() {
   alert("Participation confirmée !")
 }
 </script>
+<style scoped>
+.badge-transition {
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+.badge-transition:hover {
+  transform: scale(1.05);
+  background-color: #34d399; /* green-400 */
+}
+</style>

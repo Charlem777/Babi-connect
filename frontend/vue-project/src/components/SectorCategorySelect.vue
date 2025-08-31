@@ -40,7 +40,11 @@ async function loadCategories(slug) {
   try {
     const { data } = await api.get(`/secteurs/${slug}/categories`)
     categories.value = data
-    selectedCategorie.value = ""
+
+    // Reset catégorie seulement si elle ne correspond pas au secteur
+    if (!categories.value.find(c => c.slug === selectedCategorie.value)) {
+      selectedCategorie.value = ""
+    }
   } finally {
     loadingCategories.value = false
   }
@@ -53,10 +57,19 @@ onMounted(() => {
   }
 })
 
-watch(selectedSecteur, (slug) => {
-  loadCategories(slug)
+// 🔹 Synchronise quand le parent change
+watch(() => props.modelValue.secteur_slug, (newSlug) => {
+  selectedSecteur.value = newSlug || ""
 })
 
+// Recharge catégories si secteur change
+watch(selectedSecteur, (slug) => {
+  loadCategories(slug)
+    console.log("Slug reçu dans catégories :", slug);
+
+})
+
+// Remonte les valeurs au parent
 watch([selectedSecteur, selectedCategorie], () => {
   const payload = {
     secteur_slug: selectedSecteur.value || null,
@@ -66,47 +79,3 @@ watch([selectedSecteur, selectedCategorie], () => {
   emit("change", payload)
 })
 </script>
-
-<template>
-  <div class="mt-6">
-    <select
-      v-model="selectedSecteur"
-      class="w-full border rounded-xl p-2 bg-yellow-800 h-12 text-white"
-      :disabled="loadingSecteurs"
-    >
-      <option value="">— Tous les secteurs —</option>
-      <option v-for="s in secteurs" :key="s.slug" :value="s.slug">
-        {{ s.nom }}
-      </option>
-    </select>
-  </div>
-
-  <div v-if="categories.length" class="mb-4 mt-6">
-    <nav class="flex gap-3 overflow-x-auto pb-2">
-      <button
-        @click="selectedCategorie = ''"
-        :class="[
-          'px-3 py-1 rounded-full border text-sm whitespace-nowrap',
-          selectedCategorie === ''
-            ? 'bg-orange-600 text-white border-orange-600'
-            : 'bg-gray-100 text-gray-700 border-gray-300'
-        ]"
-      >
-        Toutes
-      </button>
-      <button
-        v-for="c in categories"
-        :key="c.slug"
-        @click="selectedCategorie = c.slug"
-        :class="[
-          'px-3 py-1 rounded-full border text-sm whitespace-nowrap',
-          selectedCategorie === c.slug
-            ? 'bg-orange-600 text-white border-orange-600'
-            : 'bg-gray-100 text-gray-700 border-gray-300'
-        ]"
-      >
-        {{ c.nom }}
-      </button>
-    </nav>
-  </div>
-</template>

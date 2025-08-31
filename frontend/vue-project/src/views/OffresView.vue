@@ -1,7 +1,6 @@
 <template>
-  <AppLayout>
-    <Offres />
-  
+  <AppLayout v-slot="{ filters }">
+    <Offres :filters="filters" />
   </AppLayout>
 </template>
 

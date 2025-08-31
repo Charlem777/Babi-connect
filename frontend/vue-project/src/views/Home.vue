@@ -1,6 +1,6 @@
 <template>
   <AppLayout>
-    <CategorieTabs></CategorieTabs>
+    
     <PartnersPreview />
   </AppLayout>
 </template>

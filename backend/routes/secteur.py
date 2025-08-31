@@ -8,8 +8,15 @@ secteur_bp = Blueprint("secteur", __name__, url_prefix="/api")
 def get_secteurs():
     secteurs = Secteur.query.order_by(Secteur.nom.asc()).all()
     return jsonify([
-        {"id": s.id, "nom": s.nom, "slug": s.slug, "description": s.description}
+        {"id": s.id, "nom": s.nom, "slug": s.slug, "description": s.description, "image": s.photo}
         for s in secteurs
+    ])
+@secteur_bp.get("/categories")
+def get_all_categories():
+    categories = CategoriePartenaire.query.order_by(CategoriePartenaire.nom.asc()).all()
+    return jsonify([
+        {"id": c.id, "nom": c.nom, "slug": c.slug, "description": c.description}
+        for c in categories
     ])
 
 @secteur_bp.get("/secteurs/<slug>/categories")
